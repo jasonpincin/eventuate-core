@@ -1,0 +1,48 @@
+{
+  "name": "eventuate-core",
+  "version": "0.0.0",
+  "description": "Handle events without emitters or frills",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jasonpincin/eventuate-core.git"
+  },
+  "keywords": [
+    "event",
+    "emitter",
+    "handler",
+    "callback",
+    "EventEmitter"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jasonpincin/eventuate-core/issues"
+  },
+  "homepage": "https://github.com/jasonpincin/eventuate-core",
+  "author": {
+    "name": "Jason Pincin",
+    "email": "jason@pincin.com",
+    "url": "http://jason.pincin.com/"
+  },
+  "contributors": [],
+  "devDependencies": {
+    "@jasonpincin/standard": "~5.0.0-8",
+    "eventuate-once": "~1.1.0",
+    "istanbul": "~0.3.22",
+    "opn": "~1.0.2",
+    "phantomjs": "~1.9.18",
+    "tap-dot": "~1.0.0",
+    "tap-spec": "~4.1.0",
+    "tape": "~4.2.1",
+    "zuul": "~3.6.0"
+  },
+  "dependencies": {
+    "define-error": "~1.0.0",
+    "object-assign": "~4.0.1"
+  },
+  "scripts": {
+    "test": "make npm-test",
+    "coverage": "make npm-coverage",
+    "browser-test": "make browser-test"
+  }
+}
