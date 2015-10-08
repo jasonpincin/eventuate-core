@@ -65,11 +65,11 @@ A basic eventuate representing the end of data production. Will only produce a s
 
 ### event.error
 
-A basic eventuate representing an error condition. This will only produce a single payload, after which `event.end` will fire. 
+A basic eventuate representing an error condition for the eventuate.
 
 ### event.consumerAdded(consumer)
 
-Unmonitored eventuate representing additions of consumers. Any consumers of `consumerAdded` will be invoked with the consumer added to the `eventuate`.
+A basic eventuate representing additions of consumers. Any consumers of `consumerAdded` will be invoked with the consumer added to the `eventuate`.
 
 Example:
 
@@ -83,7 +83,7 @@ event.consumerAdded(function (eventConsumer) {
 
 ### event.consumerRemoved(consumer)
 
-Unmonitored eventuate representing removal of consumers. Any consumers of `consumerRemoved` will be invoked with the consumer removed from the `eventuate`.
+A basic eventuate representing removal of consumers. Any consumers of `consumerRemoved` will be invoked with the consumer removed from the `eventuate`.
 
 Example:
 
