@@ -42,6 +42,7 @@ module.exports = function createEventuate (options) {
 
     function signalError (err) {
         eventuate.error.produce(err)
+        eventuate.end.produce()
     }
 
     function signalEnd () {

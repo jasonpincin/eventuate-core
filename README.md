@@ -35,6 +35,14 @@ Consume events with the `consumer` function, which should have the signature `fu
 
 Produce an event. All `event` consumer functions will be called with `data`. If the `requireConsumption` option was provided, and nothing consumes the data, an error will be thrown. In this case, if the data being produced is an instanceof `Error`, it will be thrown directly, otherwise an `UnconsumedEventError` (see below) will be thrown, and the data that was produced will be attached to the error as a `data` property.
 
+### event.signalEnd() 
+
+Inform consumers of `event.error` that there will be no more data produced from this eventuate.
+
+### event.signalError(err) 
+
+Inform consumers of `event.error` that an error has occured. This also implies `signalEnd()`, which is called immediately after `signalError()` resolves.
+
 ### event.removeConsumer(consumer)
 
 Remove the formerly added `consumer`, so that it will not be called with future produced events.
@@ -50,6 +58,14 @@ Property containing value `true` or `false`, indicating whether or not the event
 ### event.consumers
 
 Property exposing a shallow copy of all consuming functions.
+
+### event.end
+
+A basic eventuate representing the end of data production. Will only produce a single payload, after which no more data will be produced.
+
+### event.error
+
+A basic eventuate representing an error condition. This will only produce a single payload, after which `event.end` will fire. 
 
 ### event.consumerAdded(consumer)
 
