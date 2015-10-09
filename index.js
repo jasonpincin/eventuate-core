@@ -1,9 +1,12 @@
-var basicEventuate       = require('./basic'),
-    UnconsumedEventError = require('./errors').UnconsumedEventError
+var basicEventuate           = require('./basic'),
+    EventuateUnconsumedError = require('./errors').EventuateUnconsumedError,
+    EventuateEndedError      = require('./errors').EventuateEndedError
 
 module.exports = function createEventuate (options) {
     options = typeof options === 'object' ? options : {}
     options.requireConsumption = options.requireConsumption === undefined ? false : options.requireConsumption
+
+    var ended = false
 
     var eventuate = Object.defineProperties(basicEventuate(), {
         produce        : { value: produce, configurable: true, writable: true },
@@ -21,8 +24,10 @@ module.exports = function createEventuate (options) {
     return eventuate
 
     function produce (data) {
+        if (ended)
+            throw new EventuateEndedError('Cannot produce data on an ended eventuate')
         if (options.requireConsumption && eventuate._consumers.length === 0)
-            throw ((data instanceof Error) ? data : new UnconsumedEventError('Unconsumed event', { data: data }))
+            throw ((data instanceof Error) ? data : new EventuateUnconsumedError('Unconsumed eventuate data', { data: data }))
 
         eventuate._consumers.forEach(function eventuateConsume (consume) {
             consume(data)
@@ -45,6 +50,7 @@ module.exports = function createEventuate (options) {
     }
 
     function signalEnd () {
+        ended = true
         eventuate.end.produce()
     }
 }
