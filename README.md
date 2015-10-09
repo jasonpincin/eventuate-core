@@ -111,6 +111,13 @@ assert(event.factory === eventuate)
 
 Constructor of error potentially thrown on eventuates with `requireConsumption` set.
 
+## basic eventuates
+
+```javascript
+var eventuate = require('eventuate-core/basic')
+```
+
+Basic eventuates operate like normal eventuates, but with a reduced feature set. They do not offer the sub-eventuate properties: `consumerAdded`, `consumerRemoved`, `error`, `end`, or the accompanying functions: `signalEnd`, or `signalError`.
 
 ## supporting modules
 
