@@ -1,4 +1,9 @@
-module.exports = function createBasicEventuate () {
+var EventuateUnconsumedError = require('./errors').EventuateUnconsumedError
+
+module.exports = function createBasicEventuate (options) {
+    options = typeof options === 'object' ? options : {}
+    options.requireConsumption = options.requireConsumption === undefined ? false : options.requireConsumption
+
     Object.defineProperties(eventuate, {
         consumers         : { get: getConsumers, enumerable: true, configurable: true },
         hasConsumer       : { get: getHasConsumer, enumerable: true, configurable: true },
@@ -18,6 +23,9 @@ module.exports = function createBasicEventuate () {
     }
 
     function produce (data) {
+        if (options.requireConsumption && eventuate._consumers.length === 0)
+            throw ((data instanceof Error) ? data : new EventuateUnconsumedError('Unconsumed eventuate data', { data: data }))
+
         eventuate._consumers.forEach(function eachConsumer (consumer) {
             consumer(data)
         })
