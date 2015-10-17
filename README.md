@@ -128,7 +128,12 @@ var event = eventuate()
 assert(event.factory === eventuate) 
 ```
 
-### var UnconsumedEventError = require('eventuate/errors').UnconsumedEventError
+## errors
+
+```javascript
+var errors = require('eventuate/errors')
+```
+### errors.UnconsumedEventError
 
 Constructor of error potentially thrown on eventuates with `requireConsumption`
 set.
