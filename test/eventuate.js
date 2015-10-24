@@ -1,7 +1,7 @@
 var test      = require('tape'),
     eventuate = require('..')
 
-test('eventuate', function (t) {
+test('eventuate', { timeout: 1000 }, function (t) {
     t.plan(8)
 
     var event = eventuate()

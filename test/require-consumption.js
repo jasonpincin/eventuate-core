@@ -2,7 +2,7 @@ var test      = require('tape'),
     eventuate = require('..'),
     errors    = require('../errors')
 
-test('eventuate requiring consumption', function (t) {
+test('eventuate requiring consumption', { timeout: 1000 }, function (t) {
     t.plan(3)
 
     var error = eventuate({ requireConsumption: true })
@@ -19,7 +19,7 @@ test('eventuate requiring consumption', function (t) {
     error.produce(new Error('bad data'))
 })
 
-test('should throw EventuateUnconsumedError when unconsumed data is produced (with requireConsumption set)', function (t) {
+test('EventuateUnconsumedError', function (t) {
     t.plan(3)
 
     var error = eventuate({ requireConsumption: true })
@@ -28,7 +28,7 @@ test('should throw EventuateUnconsumedError when unconsumed data is produced (wi
     }
     catch (err) {
         t.ok(err instanceof errors.EventuateUnconsumedError, 'err is instanceof EventuateUnconsumedError')
-        t.equal(err.message, 'Unconsumed eventuate data', 'message is Unconsumed event')
-        t.equal(err.data, 'explode', 'data is produced data')
+        t.equal(err.message, 'Unconsumed eventuate data', 'message is Unconsumed eventuate data')
+        t.equal(err.data, 'explode', 'error.data is produced data')
     }
 })
