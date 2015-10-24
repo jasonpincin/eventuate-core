@@ -168,26 +168,26 @@ included in the [eventuate](https://github.com/jasonpincin/eventuate) module
 npm install eventuate 
 ```
 
+## install
+
+With [npm](https://npmjs.org) do:
+
+```
+npm install date-events
+```
+
 ## testing
 
-`npm test [--dot | --spec] [--phantom] [--grep=pattern]`
+`npm test`
 
-Specifying `--dot` or `--spec` will change the output from the default TAP
-style.  Specifying `--phantom` will cause the tests to run in the headless
-phantom browser instead of node.  Specifying `--grep` will only run the test
-files that match the given pattern.
-
-### browser test
-
-`npm run browser-test`
-
-This will run the tests in all browsers (specified in .zuul.yml). Be sure to
-[educate zuul](https://github.com/defunctzombie/zuul/wiki/cloud-testing#2-educate-zuul)
-first.
+Or to run tests in phantom: `npm run phantom`
 
 ### coverage
 
-`npm run coverage [--html]`
+`npm run view-cover`
 
-This will output a textual coverage report. Including `--html` will also open an
-HTML coverage report in the default browser.
+This will output a textual coverage report.
+
+`npm run open-cover`
+
+This will open an HTML coverage report in the default browser.
