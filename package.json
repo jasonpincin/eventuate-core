@@ -27,6 +27,7 @@
   "contributors": [],
   "devDependencies": {
     "@jasonpincin/standard": "~5.0.0-8",
+    "es5-shim": "~4.1.15",
     "eventuate-once": "~1.1.0",
     "faucet": "0.0.1",
     "istanbul": "~0.4.0",
@@ -37,8 +38,7 @@
     "zuul": "~3.6.0"
   },
   "dependencies": {
-    "define-error": "~1.0.0",
-    "object-assign": "~4.0.1"
+    "define-error": "~1.1.0"
   },
   "scripts": {
     "test": "npm run -s faucet && npm run -s lint && npm run -s check-cover",
