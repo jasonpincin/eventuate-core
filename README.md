@@ -82,14 +82,14 @@ Remove all consumers from the eventuate `event`.
 Returns `true` is the eventuate has any consumers, otherwise `false`.
 
 ### event.getConsumers()
-i
+
 Returns a shallow copy of the array of all consuming functions.
 
 ### event.consumerAdded(consumer)
 
-A basic eventuate representing additions of consumers. Any consumers of
-`consumerAdded` will be invoked and passed the `consumer` function that was
-added to the eventuate.
+A basic eventuate (see "basic eventuates" below) representing additions of consumers. 
+Any consumers of `consumerAdded` will be invoked and passed the `consumer` function 
+that was added to the eventuate.
 
 Example:
 
@@ -140,7 +140,7 @@ set.
 ## basic eventuates
 
 ```javascript 
-var eventuate = require('eventuate-core/basic') 
+var basicEventuate = require('eventuate-core/basic') 
 ```
 
 Basic eventuates are identical to the standard eventuate minus consumer
