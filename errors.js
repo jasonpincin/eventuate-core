@@ -1,8 +1,7 @@
-var defineError = require('define-error'),
-    assign      = require('object-assign')
+var defineError = require('define-error')
 
 module.exports.EventuateUnconsumedError = defineError('EventuateUnconsumedError', assignData)
 
 function assignData (_, data) {
-    assign(this, data)
+    this.data = data
 }
