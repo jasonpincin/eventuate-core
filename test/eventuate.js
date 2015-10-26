@@ -5,7 +5,7 @@ test('eventuate', { timeout: 1000 }, function (t) {
     t.plan(8)
 
     var event = eventuate()
-    t.false(event.hasConsumer, 'has no consumers initially')
+    t.notOk(event.hasConsumer(), 'has no consumers initially')
 
     var consumerCallCount = 0
     function consumer1 (value) {
@@ -16,9 +16,9 @@ test('eventuate', { timeout: 1000 }, function (t) {
     }
 
     t.equal(typeof event(consumer1), 'undefined', '(consumer) should return undefined')
-    t.true(event.hasConsumer, 'has consumers after consumer added')
+    t.ok(event.hasConsumer(), 'has consumers after consumer added')
     event.produce('test1')
-    t.false(event.hasConsumer, 'has no consumers after consumer removed')
+    t.notOk(event.hasConsumer(), 'has no consumers after consumer removed')
 
     t.throws(event, 'requires a consuming function')
 

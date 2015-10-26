@@ -11,7 +11,7 @@ test('remove-all-consumers removes all consumers', { timeout: 1000 }, function (
         t.ok(consumer === consumer1 || consumer === consumer2, 'got consumerRemoved')
     })
     event.removeAllConsumers()
-    t.equal(event.consumers.length, 0, 'no consumers remain')
+    t.equal(event.getConsumers().length, 0, 'no consumers remain')
 
     function consumer1 () {}
     function consumer2 () {}
