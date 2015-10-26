@@ -1,14 +1,14 @@
 var basicEventuate = require('./basic')
 
-module.exports = function createEventuate (options) {
+module.exports = createEventuate
 
-    var eventuate = Object.defineProperties(basicEventuate(options), {
-        consume        : { value: consume, configurable: true, writable: true },
-        removeConsumer : { value: removeConsumer, configurable: true, writable: true },
-        consumerAdded  : { value: basicEventuate(), configurable: true, writable: true },
-        consumerRemoved: { value: basicEventuate(), configurable: true, writable: true },
-        factory        : { value: createEventuate, configurable: true, writable: true }
-    })
+function createEventuate (options) {
+    var eventuate             = basicEventuate(options)
+    eventuate.consume         = consume
+    eventuate.removeConsumer  = removeConsumer
+    eventuate.consumerAdded   = basicEventuate()
+    eventuate.consumerRemoved = basicEventuate()
+    eventuate.factory         = createEventuate
 
     return eventuate
 

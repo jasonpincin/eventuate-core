@@ -1,20 +1,19 @@
 var EventuateUnconsumedError = require('./errors').EventuateUnconsumedError
 
-module.exports = function createBasicEventuate (options) {
+module.exports = createBasicEventuate
+
+function createBasicEventuate (options) {
     options = typeof options === 'object' ? options : {}
     options.requireConsumption = options.requireConsumption === undefined ? false : options.requireConsumption
 
-    Object.defineProperties(eventuate, {
-        consumers         : { get: getConsumers, enumerable: true, configurable: true },
-        hasConsumer       : { get: getHasConsumer, enumerable: true, configurable: true },
-        produce           : { value: produce, configurable: true, writable: true },
-        consume           : { value: consume, configurable: true, writable: true },
-        removeConsumer    : { value: removeConsumer, configurable: true, writable: true },
-        removeAllConsumers: { value: removeAllConsumers, configurable: true, writable: true },
-        factory           : { value: createBasicEventuate, configurable: true, writable: true },
-
-        _consumers: { value: [] }
-    })
+    eventuate.produce            = produce
+    eventuate.consume            = consume
+    eventuate.getConsumers       = getConsumers
+    eventuate.hasConsumer        = hasConsumer
+    eventuate.removeConsumer     = removeConsumer
+    eventuate.removeAllConsumers = removeAllConsumers
+    eventuate.factory            = createBasicEventuate
+    eventuate._consumers         = []
 
     return eventuate
 
@@ -24,11 +23,11 @@ module.exports = function createBasicEventuate (options) {
 
     function produce (data) {
         if (options.requireConsumption && eventuate._consumers.length === 0)
-            throw ((data instanceof Error) ? data : new EventuateUnconsumedError('Unconsumed eventuate data', { data: data }))
+            throw ((data instanceof Error) ? data : new EventuateUnconsumedError('Unconsumed eventuate data', data))
 
-        eventuate._consumers.forEach(function eachConsumer (consumer) {
-            consumer(data)
-        })
+        for (var i = 0; i < eventuate._consumers.length; i++) {
+            eventuate._consumers[i](data)
+        }
     }
 
     function consume (consumer) {
@@ -48,7 +47,7 @@ module.exports = function createBasicEventuate (options) {
         return eventuate._consumers.slice()
     }
 
-    function getHasConsumer () {
+    function hasConsumer () {
         return eventuate._consumers.length > 0
     }
 }
