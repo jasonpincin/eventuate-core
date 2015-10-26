@@ -77,14 +77,13 @@ produced events.
 
 Remove all consumers from the eventuate `event`.
 
-### event.hasConsumer
+### event.hasConsumer()
 
-Property containing value `true` or `false`, indicating whether or not the event
-has a consumer.
+Returns `true` is the eventuate has any consumers, otherwise `false`.
 
-### event.consumers
-
-Property exposing a shallow copy of all consuming functions.
+### event.getConsumers()
+i
+Returns a shallow copy of the array of all consuming functions.
 
 ### event.consumerAdded(consumer)
 
