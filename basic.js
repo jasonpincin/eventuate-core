@@ -5,6 +5,7 @@ module.exports = createBasicEventuate
 function createBasicEventuate (options) {
     options = typeof options === 'object' ? options : {}
     options.requireConsumption = options.requireConsumption === undefined ? false : options.requireConsumption
+    options.destroyResidual = options.destroyResidual === undefined ? true :  options.destroyResidual
 
     eventuate.produce            = produce
     eventuate.consume            = consume
@@ -12,7 +13,9 @@ function createBasicEventuate (options) {
     eventuate.hasConsumer        = hasConsumer
     eventuate.removeConsumer     = removeConsumer
     eventuate.removeAllConsumers = removeAllConsumers
+    eventuate.destroy            = destroy
     eventuate.factory            = createBasicEventuate
+    eventuate._destroy           = _destroy
     eventuate._consumers         = []
 
     return eventuate
@@ -37,6 +40,7 @@ function createBasicEventuate (options) {
 
     function removeConsumer (consumer) {
         eventuate._consumers.splice(eventuate._consumers.indexOf(consumer), 1)
+        if (eventuate._consumers.length === 0 && options.destroyResidual) eventuate._destroy()
     }
 
     function removeAllConsumers () {
@@ -49,5 +53,11 @@ function createBasicEventuate (options) {
 
     function hasConsumer () {
         return eventuate._consumers.length > 0
+    }
+
+    function destroy () {}
+
+    function _destroy () {
+        eventuate.destroy()
     }
 }
