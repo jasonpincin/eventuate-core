@@ -46,8 +46,11 @@ Create an object, `event`, that represents a consumable event type.
 
 Valid options are:
 
-* requireConsumption - throw an error if a produced event is not consumed,
+* `requireConsumption` (default: `false`) - throw an error if a produced event is not consumed,
   useful for error producers
+* `destroyResidual` (default: `true`) - call the destroy function when the last
+  consumer is removed via `removeConsumer` or `removeAllConsumers` (after at
+  least one consumer was added)
 
 ### event(consumer)
 
@@ -71,11 +74,11 @@ error as a `data` property.
 ### event.removeConsumer(consumer)
 
 Remove the formerly added `consumer`, so that it will not be called with future
-produced events.
+produced events. 
 
 ### event.removeAllConsumers()
 
-Remove all consumers from the eventuate `event`.
+Remove all consumers from the eventuate `event`. 
 
 ### event.hasConsumer()
 
@@ -84,6 +87,12 @@ Returns `true` is the eventuate has any consumers, otherwise `false`.
 ### event.getConsumers()
 
 Returns a shallow copy of the array of all consuming functions.
+
+### event.destroy() 
+
+A no-op function that may be overridden to do something when all consumers are
+removed (after at least one was added), unless the eventuate was created with 
+the `destroyResidual` option set to `false`.
 
 ### event.consumerAdded(consumer)
 
@@ -115,6 +124,12 @@ event.consumerRemoved(function (eventConsumer) {
 }) 
 ```
 
+### event.destroyed(consumer)
+
+A basic eventuate representing destruction of the event. This eventuate occurs
+only one time, after `destroy` is called. This eventuate will not occur if
+`destroyResidual` was set to `false` at eventuate creation.
+
 ### event.factory
 
 Exposes the factory function used to create the eventuate. Example:
@@ -144,7 +159,8 @@ var basicEventuate = require('eventuate-core/basic')
 ```
 
 Basic eventuates are identical to the standard eventuate minus consumer
-observation, so they do not offer `consumerRemoved` or `consumerAdded`.
+observation, so they do not offer `consumerRemoved`, `consumerAdded`, or
+`destroyed`.
 
 ## supporting modules
 
