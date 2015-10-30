@@ -7,6 +7,8 @@ function createBasicEventuate (options) {
     options.requireConsumption = options.requireConsumption === undefined ? false : options.requireConsumption
     options.destroyResidual = options.destroyResidual === undefined ? true :  options.destroyResidual
 
+    var state = { isDestroyed: false, consumers: [] }
+
     eventuate.produce            = produce
     eventuate.consume            = consume
     eventuate.getConsumers       = getConsumers
@@ -14,9 +16,8 @@ function createBasicEventuate (options) {
     eventuate.removeConsumer     = removeConsumer
     eventuate.removeAllConsumers = removeAllConsumers
     eventuate.destroy            = destroy
+    eventuate.isDestroyed        = isDestroyed
     eventuate.factory            = createBasicEventuate
-    eventuate._destroy           = _destroy
-    eventuate._consumers         = []
 
     return eventuate
 
@@ -25,39 +26,49 @@ function createBasicEventuate (options) {
     }
 
     function produce (data) {
-        if (options.requireConsumption && eventuate._consumers.length === 0)
+        if (data instanceof Error && eventuate._error) {
+            data = eventuate._error(data)
+            if (!(data instanceof Error)) return
+        }
+        else if (options.requireConsumption && state.consumers.length === 0)
             throw ((data instanceof Error) ? data : new EventuateUnconsumedError('Unconsumed eventuate data', data))
 
-        for (var i = 0; i < eventuate._consumers.length; i++) {
-            eventuate._consumers[i](data)
+        for (var i = 0; i < state.consumers.length; i++) {
+            state.consumers[i](data)
         }
     }
 
     function consume (consumer) {
         if (typeof consumer !== 'function') throw new TypeError('eventuate consumer must be a function')
-        eventuate._consumers.push(consumer)
+        state.consumers.push(consumer)
     }
 
     function removeConsumer (consumer) {
-        eventuate._consumers.splice(eventuate._consumers.indexOf(consumer), 1)
-        if (eventuate._consumers.length === 0 && options.destroyResidual) eventuate._destroy()
+        var consumerIdx = state.consumers.indexOf(consumer)
+        if (consumerIdx === -1) return false
+        state.consumers.splice(consumerIdx, 1)
+        if (state.consumers.length === 0 && options.destroyResidual) eventuate.destroy()
+        return true
     }
 
     function removeAllConsumers () {
-        for (var i = eventuate._consumers.length - 1; i >= 0; i--) eventuate.removeConsumer(eventuate._consumers[i])
+        for (var i = state.consumers.length - 1; i >= 0; i--) eventuate.removeConsumer(state.consumers[i])
     }
 
     function getConsumers () {
-        return eventuate._consumers.slice()
+        return state.consumers.slice()
     }
 
-    function hasConsumer () {
-        return eventuate._consumers.length > 0
+    function hasConsumer (consumer) {
+        return consumer ? state.consumers.indexOf(consumer) > -1 : state.consumers.length > 0
     }
 
-    function destroy () {}
+    function isDestroyed () {
+        return state.isDestroyed
+    }
 
-    function _destroy () {
-        eventuate.destroy()
+    function destroy () {
+        if (!state.isDestroyed && typeof eventuate._destroy === 'function') eventuate._destroy()
+        state.isDestroyed = true
     }
 }
