@@ -1,7 +1,7 @@
 var test      = require('tape'),
     eventuate = require('..')
 
-test('destroy is called when last consumer is removed', { timeout: 1000 }, function (t) {
+test('_destroy is called when last consumer is removed', { timeout: 1000 }, function (t) {
     t.plan(1)
 
     var event         = eventuate(),
@@ -10,7 +10,7 @@ test('destroy is called when last consumer is removed', { timeout: 1000 }, funct
     event(consumer1)
     event(consumer2)
 
-    event.destroy = function () {
+    event._destroy = function () {
         destroyCalled++
     }
     event.destroyed(function () {
@@ -22,7 +22,7 @@ test('destroy is called when last consumer is removed', { timeout: 1000 }, funct
     function consumer2 () {}
 })
 
-test('destroy is NOT called when destroyResidual = false', { timeout: 1000 }, function (t) {
+test('_destroy is NOT called when destroyResidual = false', { timeout: 1000 }, function (t) {
     t.plan(1)
 
     var event         = eventuate({ destroyResidual: false }),
@@ -31,7 +31,7 @@ test('destroy is NOT called when destroyResidual = false', { timeout: 1000 }, fu
     event(consumer1)
     event(consumer2)
 
-    event.destroy = function () {
+    event._destroy = function () {
         destroyCalled++
     }
     event.destroyed(function () {
