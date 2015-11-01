@@ -1,4 +1,5 @@
 var basicEventuate = require('./basic'),
+    pre            = require('call-hook/pre'),
     post           = require('call-hook/post')
 
 module.exports = createEventuate
@@ -12,25 +13,22 @@ function createEventuate (options) {
     eventuate.error            = basicEventuate({ destroyResidual: false })
     eventuate.factory          = createEventuate
     eventuate.factory.basic    = basicEventuate
+    eventuate.produce          = pre(eventuate.produce, splitErrors)
     eventuate.consume          = post(eventuate.consume, eventuate.consumerAdded.produce)
     eventuate.removeConsumer   = post(eventuate.removeConsumer, consumerRemoved)
     eventuate.destroy          = post(eventuate.destroy, eventuate.destroyed.produce)
 
-    eventuate.error.consume        = post(eventuate.error.consume, errorConsumerAdded)
-    eventuate.error.removeConsumer = post(eventuate.error.removeConsumer, errorConsumerRemoved)
-
     return eventuate
+
+    function splitErrors (data) {
+        if (data instanceof Error && eventuate.error.hasConsumer()) {
+            eventuate.error.produce(data)
+            this.abort()
+        }
+    }
 
     function consumerRemoved (consumer) {
         if (this.previousReturnValue) eventuate.consumerRemoved.produce(consumer)
         return this.previousReturnValue
-    }
-
-    function errorConsumerAdded () {
-        eventuate._error = eventuate.error.produce
-    }
-
-    function errorConsumerRemoved () {
-        if (!eventuate.error.hasConsumer()) eventuate._error = undefined
     }
 }
