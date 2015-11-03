@@ -1,10 +1,11 @@
-var test      = require('tape'),
-    eventuate = require('..')
+var test                    = require('tape'),
+    eventuate               = require('..'),
+    EventuateDestroyedError = require('../errors').EventuateDestroyedError
 
 test('destroy is called when last consumer is removed', { timeout: 1000 }, function (t) {
     t.plan(1)
 
-    var event         = eventuate()
+    var event = eventuate()
     event(consumer1)
     event(consumer2)
 
@@ -20,7 +21,7 @@ test('destroy is called when last consumer is removed', { timeout: 1000 }, funct
 test('destroy is NOT called when destroyResidual = false', { timeout: 1000 }, function (t) {
     t.plan(1)
 
-    var event         = eventuate({ destroyResidual: false })
+    var event = eventuate({ destroyResidual: false })
     event(consumer1)
     event(consumer2)
 
@@ -33,4 +34,13 @@ test('destroy is NOT called when destroyResidual = false', { timeout: 1000 }, fu
 
     function consumer1 () {}
     function consumer2 () {}
+})
+
+test('cannot produce after destroy', { timeout: 1000 }, function (t) {
+    t.plan(2)
+
+    var event = eventuate()
+    event.destroy()
+    t.ok(event.isDestroyed())
+    t.throws(event.produce, EventuateDestroyedError)
 })
