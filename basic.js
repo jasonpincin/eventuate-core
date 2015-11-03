@@ -1,4 +1,5 @@
-var EventuateUnconsumedError = require('./errors').EventuateUnconsumedError
+var EventuateUnconsumedError = require('./errors').EventuateUnconsumedError,
+    EventuateDestroyedError  = require('./errors').EventuateDestroyedError
 
 module.exports = createBasicEventuate
 
@@ -27,10 +28,11 @@ function createBasicEventuate (options) {
     }
 
     function produce (data) {
-        if (options.requireConsumption && consumers.length === 0)
+        if (destroyed)
+            throw new EventuateDestroyedError('Unable to produce from destroyed eventuate', data)
+        else if (options.requireConsumption && consumers.length === 0)
             throw ((data instanceof Error) ? data : new EventuateUnconsumedError('Unconsumed eventuate data', data))
-
-        for (var i = 0; i < consumers.length; i++) {
+        else for (var i = 0; i < consumers.length; i++) {
             consumers[i](data)
         }
     }
@@ -65,7 +67,8 @@ function createBasicEventuate (options) {
     }
 
     function destroy () {
-        if (!destroyed && typeof eventuate._destroy === 'function') eventuate._destroy()
+        var retVal = !destroyed
         destroyed = true
+        return retVal
     }
 }
