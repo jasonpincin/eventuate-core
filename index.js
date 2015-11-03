@@ -28,7 +28,7 @@ function createEventuate (options) {
     }
 
     function consumerRemoved (consumer) {
-        if (this.previousReturnValue) eventuate.consumerRemoved.produce(consumer)
-        return this.previousReturnValue
+        if (this.returnValue) eventuate.consumerRemoved.produce(consumer)
+        return this.returnValue
     }
 }
