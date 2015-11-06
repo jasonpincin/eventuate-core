@@ -11,12 +11,12 @@ function createEventuate (options) {
     eventuate.consumerRemoved  = basicEventuate({ destroyResidual: false })
     eventuate.destroyed        = basicEventuate({ destroyResidual: false })
     eventuate.error            = basicEventuate({ destroyResidual: false })
-    eventuate.factory          = createEventuate
-    eventuate.factory.basic    = basicEventuate
     eventuate.produce          = pre(eventuate.produce, splitErrors)
     eventuate.consume          = post(eventuate.consume, eventuate.consumerAdded.produce)
     eventuate.removeConsumer   = post(eventuate.removeConsumer, consumerRemoved)
     eventuate.destroy          = post(eventuate.destroy, eventuate.destroyed.produce)
+    eventuate.factory          = createEventuate
+    eventuate.factory.basic    = basicEventuate
 
     return eventuate
 

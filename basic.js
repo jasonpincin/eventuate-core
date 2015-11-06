@@ -20,6 +20,7 @@ function createBasicEventuate (options) {
     eventuate.destroy            = destroy
     eventuate.isDestroyed        = isDestroyed
     eventuate.factory            = createBasicEventuate
+    eventuate.factory.basic      = createBasicEventuate
 
     return eventuate
 
