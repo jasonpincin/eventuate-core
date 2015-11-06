@@ -48,7 +48,7 @@ Valid options are:
 
 * `requireConsumption` (default: `false`) - throw an error if a produced event is not consumed,
   useful for error producers
-* `destroyResidual` (default: `true`) - call the destroy function when the last
+* `destroyResidual` (default: `false`) - call the destroy function when the last
   consumer is removed via `removeConsumer` or `removeAllConsumers` (after at
   least one consumer was added)
 

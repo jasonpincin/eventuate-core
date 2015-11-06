@@ -5,8 +5,8 @@ module.exports = createBasicEventuate
 
 function createBasicEventuate (options) {
     options = typeof options === 'object' ? options : {}
-    options.requireConsumption = options.requireConsumption === undefined ? false : options.requireConsumption
-    options.destroyResidual = options.destroyResidual === undefined ? true :  options.destroyResidual
+    options.requireConsumption = options.requireConsumption !== undefined ? options.requireConsumption : false
+    options.destroyResidual = options.destroyResidual !== undefined ? options.destroyResidual : false
 
     var destroyed = false,
         consumers = []
