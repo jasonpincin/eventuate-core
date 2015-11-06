@@ -4,7 +4,7 @@ var EventuateUnconsumedError = require('./errors').EventuateUnconsumedError,
 module.exports = createBasicEventuate
 
 function createBasicEventuate (options) {
-    options = typeof options === 'object' ? options : {}
+    options = options || {}
     options.requireConsumption = options.requireConsumption !== undefined ? options.requireConsumption : false
     options.destroyResidual = options.destroyResidual !== undefined ? options.destroyResidual : false
 
