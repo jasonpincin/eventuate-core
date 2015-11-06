@@ -149,6 +149,11 @@ var event = eventuate()
 assert(event.factory === eventuate) 
 ```
 
+### event.factory.basic
+
+Expose the factory function used to create the basic equivalent of the
+eventuate.
+
 ## eventuate error types
 
 ```javascript
