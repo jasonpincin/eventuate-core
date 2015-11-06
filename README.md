@@ -94,9 +94,16 @@ A no-op function that may be overridden to do something when all consumers are
 removed (after at least one was added), unless the eventuate was created with 
 the `destroyResidual` option set to `false`.
 
+### event.error(consumer)
+
+A basic eventuate (see "basic eventuates" below) representing `Error` objects
+produced by the eventuate. By assigning a handler to the `event.error`, any
+`Error` objects produced will no longer be supplied to `event` consumers; only
+`event.error` consumers will receive them.
+
 ### event.consumerAdded(consumer)
 
-A basic eventuate (see "basic eventuates" below) representing additions of consumers. 
+A basic eventuate representing additions of consumers. 
 Any consumers of `consumerAdded` will be invoked and passed the `consumer` function 
 that was added to the eventuate.
 
@@ -142,15 +149,20 @@ var event = eventuate()
 assert(event.factory === eventuate) 
 ```
 
-## errors
+## eventuate error types
 
 ```javascript
 var errors = require('eventuate/errors')
 ```
-### errors.UnconsumedEventError
+### errors.EventuateUnconsumedError
 
-Constructor of error potentially thrown on eventuates with `requireConsumption`
-set.
+Constructor of error potentially thrown from `eventuate.produce` when 
+`requireConsumption` is true.
+
+### errors.EventuateDestroyedError
+
+Constructor of error thrown from `eventuate.produce` when the eventuate is
+already destroyed.
 
 ## basic eventuates
 
@@ -158,9 +170,8 @@ set.
 var basicEventuate = require('eventuate-core/basic') 
 ```
 
-Basic eventuates are identical to the standard eventuate minus consumer
-observation, so they do not offer `consumerRemoved`, `consumerAdded`, or
-`destroyed`.
+Basic eventuates are identical to the standard eventuate minus observation, 
+so they do not offer `error`, `consumerRemoved`, `consumerAdded`, or `destroyed`.
 
 ## supporting modules
 
@@ -179,16 +190,10 @@ included in the [eventuate](https://github.com/jasonpincin/eventuate) module
 
 ## install
 
-```sh 
-npm install eventuate 
-```
-
-## install
-
 With [npm](https://npmjs.org) do:
 
 ```
-npm install date-events
+npm install --save eventuate-core
 ```
 
 ## testing
