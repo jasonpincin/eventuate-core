@@ -12,9 +12,9 @@ function createEventuate (options) {
     eventuate.destroyed        = basicEventuate({ destroyResidual: false })
     eventuate.error            = basicEventuate({ destroyResidual: false })
     eventuate.produce          = pre(eventuate.produce, splitErrors)
-    eventuate.consume          = post(eventuate.consume, eventuate.consumerAdded.produce)
+    eventuate.consume          = post(eventuate.consume, consumerAdded)
     eventuate.removeConsumer   = post(eventuate.removeConsumer, consumerRemoved)
-    eventuate.destroy          = post(eventuate.destroy, eventuate.destroyed.produce)
+    eventuate.destroy          = post(eventuate.destroy, destroyed)
     eventuate.factory          = createEventuate
     eventuate.factory.basic    = basicEventuate
 
@@ -27,8 +27,19 @@ function createEventuate (options) {
         }
     }
 
+    function consumerAdded (consumer) {
+        eventuate.consumerAdded.produce(consumer)
+        return this.returnValue
+    }
+
     function consumerRemoved (consumer) {
         if (this.returnValue) eventuate.consumerRemoved.produce(consumer)
         return this.returnValue
     }
+
+    function destroyed () {
+        eventuate.destroyed.produce()
+        return this.returnValue
+    }
+
 }
