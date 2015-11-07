@@ -44,3 +44,20 @@ test('cannot produce after destroy', { timeout: 1000 }, function (t) {
     t.ok(event.isDestroyed())
     t.throws(event.produce, EventuateDestroyedError)
 })
+
+test('consumer not added after destroy', { timeout: 1000 }, function (t) {
+    t.plan(1)
+
+    var event = eventuate()
+    event.destroy()
+    event(function () {})
+    t.notOk(event.hasConsumer(), 'consumer was not added')
+})
+
+test('2nd destroy call returns false', { timeout: 1000 }, function (t) {
+    t.plan(1)
+
+    var event = eventuate()
+    event.destroy()
+    t.equal(event.destroy(), false)
+})
