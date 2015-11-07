@@ -76,6 +76,9 @@ error as a `data` property.
 Remove the formerly added `consumer`, so that it will not be called with future
 produced events. 
 
+If the `consumer` function has a property of `removed`, and that property is a
+function, it will be executed (with no arguments) after it is removed.
+
 ### event.removeAllConsumers()
 
 Remove all consumers from the eventuate `event`. 
@@ -90,9 +93,10 @@ Returns a shallow copy of the array of all consuming functions.
 
 ### event.destroy() 
 
-A no-op function that may be overridden to do something when all consumers are
-removed (after at least one was added), unless the eventuate was created with 
-the `destroyResidual` option set to `false`.
+Remove all consumers, prevent further consumers from being added, and throw an
+EventuateDestroyedError if further `produce` calls are attempted. This function
+is called automatically when the last consumer is removed if the
+`destroyResidual` option was set to true.
 
 ### event.error(consumer)
 

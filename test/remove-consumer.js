@@ -13,3 +13,17 @@ test('removeConsumer returns boolean based on existance', { timeout: 1000 }, fun
 
     function consumer1 () {}
 })
+
+test('consumer.removed called if present', { timeout: 1000 }, function (t) {
+    t.plan(1)
+
+    var event = eventuate()
+    consumer.removed = function () {
+        t.pass('consumer.removed called')
+    }
+
+    event(consumer)
+    event.removeConsumer(consumer)
+
+    function consumer () {}
+})

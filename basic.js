@@ -47,6 +47,7 @@ function createBasicEventuate (options) {
         var consumerIdx = consumers.indexOf(consumer)
         if (consumerIdx === -1) return false
         consumers.splice(consumerIdx, 1)
+        if (typeof consumer.removed === 'function') consumer.removed()
         if (consumers.length === 0 && options.destroyResidual) eventuate.destroy()
         return true
     }
