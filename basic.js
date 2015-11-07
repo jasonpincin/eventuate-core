@@ -25,7 +25,7 @@ function createBasicEventuate (options) {
     return eventuate
 
     function eventuate (consumer) {
-        eventuate.consume(consumer)
+        return eventuate.consume(consumer)
     }
 
     function produce (data) {
@@ -41,6 +41,11 @@ function createBasicEventuate (options) {
     function consume (consumer) {
         if (typeof consumer !== 'function') throw new TypeError('eventuate consumer must be a function')
         if (!destroyed) consumers.push(consumer)
+        return { stop: stop }
+
+        function stop () {
+            return eventuate.removeConsumer(consumer)
+        }
     }
 
     function removeConsumer (consumer) {

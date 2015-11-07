@@ -16,7 +16,7 @@ test('basic eventuate', { timeout: 5000 }, function (t) {
         event.removeConsumer(consumer1)
     }
 
-    t.equal(typeof event(consumer1), 'undefined', '(consumer) should return undefined')
+    t.equal(typeof event(consumer1), 'object', '(consumer) should return object')
     event.produce('test1')
 
     t.throws(event, 'consume requires a function')

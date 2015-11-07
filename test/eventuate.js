@@ -15,7 +15,7 @@ test('eventuate', { timeout: 1000 }, function (t) {
         event.removeConsumer(consumer1)
     }
 
-    t.equal(typeof event(consumer1), 'undefined', '(consumer) should return undefined')
+    t.equal(typeof event(consumer1), 'object', '(consumer) should return object')
     t.ok(event.hasConsumer(), 'has consumers after consumer added')
     event.produce('test1')
     t.notOk(event.hasConsumer(), 'has no consumers after consumer removed')
