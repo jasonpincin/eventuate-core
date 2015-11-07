@@ -62,8 +62,7 @@ Consume events with the `consumer` function, which should have the signature
 `function (data) {}`. When an event is produced, it will be passed to the
 consumer function as the first and only argument.
 
-Returns an object with a method `stop` which will remove the `consumer` when
-called.
+Returns `event`.
 
 ### event.produce(data)
 
