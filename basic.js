@@ -40,7 +40,7 @@ function createBasicEventuate (options) {
 
     function consume (consumer) {
         if (typeof consumer !== 'function') throw new TypeError('eventuate consumer must be a function')
-        consumers.push(consumer)
+        if (!destroyed) consumers.push(consumer)
     }
 
     function removeConsumer (consumer) {
@@ -68,8 +68,11 @@ function createBasicEventuate (options) {
     }
 
     function destroy () {
-        var retVal = !destroyed
-        destroyed = true
-        return retVal
+        if (!destroyed) {
+            destroyed = true
+            eventuate.removeAllConsumers()
+            return true
+        }
+        return false
     }
 }
