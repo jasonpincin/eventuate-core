@@ -181,8 +181,9 @@ already destroyed.
 var basicEventuate = require('eventuate-core/basic') 
 ```
 
-Basic eventuates are identical to the standard eventuate minus observation, 
-so they do not offer `error`, `consumerRemoved`, `consumerAdded`, or `destroyed`.
+Basic eventuates are identical to the standard eventuate minus observation and
+destruction, so they do not offer `destroy()`, `isDestroyed()`, `error`, 
+`consumerRemoved`, `consumerAdded`, or `destroyed`.
 
 ## supporting modules
 
