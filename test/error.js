@@ -39,11 +39,13 @@ test('errors propgated after .error listener removed', { timeout: 1000 }, functi
         t.ok(data instanceof Error, 'eventuate produced Error')
     })
 
-    event.error(function (err) {
-        t.ok(err instanceof Error, 'eventuate.error produced Error')
-    })
+    event.error(onError)
 
     event.produce(new Error('boom'))
-    event.error.removeAllConsumers()
+    event.error.removeConsumer(onError)
     event.produce(new Error('boom'))
+
+    function onError (err) {
+        t.ok(err instanceof Error, 'eventuate.error produced Error')
+    }
 })

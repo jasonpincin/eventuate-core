@@ -155,7 +155,7 @@ var event = eventuate()
 assert(event.factory === eventuate) 
 ```
 
-### event.factory.basic
+### event.basicFactory
 
 Expose the factory function used to create the basic equivalent of the
 eventuate.
@@ -181,9 +181,13 @@ already destroyed.
 var basicEventuate = require('eventuate-core/basic') 
 ```
 
-Basic eventuates are identical to the standard eventuate minus observation and
-destruction, so they do not offer `destroy()`, `isDestroyed()`, `error`, 
-`consumerRemoved`, `consumerAdded`, or `destroyed`.
+Basic eventuates offer minimal functionality: production, consumption, and
+limited consumer management. They offer: `produce`, `consume`, `hasConsumer`,
+and `removeConsumer`. That also have a `factory` property (but not a
+`basicFactory` as that would be redundant).
+
+Basic eventuates are used internally to implement the "sub-eventuates" `error`,
+`consumerRemoved`, `consumerAdded`, and `destroyed`. 
 
 ## supporting modules
 
