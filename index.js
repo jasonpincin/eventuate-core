@@ -39,8 +39,10 @@ function createEventuate (options) {
             throw ((data instanceof Error) ? data : new EventuateUnconsumedError('Unconsumed eventuate data', data))
         if (data instanceof Error && eventuate.error.hasConsumer())
             eventuate.error.produce(data)
-        else
-            for (var i = 0; i < consumers.length; i++) consumers[i](data)
+        else {
+            var _consumers = consumers.slice()
+            for (var i = 0; i < _consumers.length; i++) _consumers[i](data)
+        }
     }
 
     function consume (consumer) {
