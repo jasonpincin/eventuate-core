@@ -27,7 +27,7 @@
   "contributors": [],
   "devDependencies": {
     "@jasonpincin/standard": "~5.0.0-8",
-    "es5-shim": "~4.1.15",
+    "es5-shim": "~4.3.1",
     "eventuate-once": "~1.1.0",
     "faucet": "0.0.1",
     "istanbul": "~0.4.0",
@@ -35,7 +35,7 @@
     "phantomjs": "~1.9.18",
     "snazzy": "~2.0.1",
     "tape": "~4.2.1",
-    "zuul": "~3.6.0"
+    "zuul": "~3.7.2"
   },
   "dependencies": {
     "define-error": "~1.1.0"
