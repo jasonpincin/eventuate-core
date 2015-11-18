@@ -59,8 +59,24 @@ Convenient shortcut for calling `event.consume(consumer)`.
 ### event.consume(consumer)
 
 Consume events with the `consumer` function, which should have the signature
-`function (data) {}`. When an event is produced, it will be passed to the
-consumer function as the first and only argument.
+`function (data [, done]) {}`. When an event is produced, it will be passed to the
+consumer function as the first argument.
+
+If the `consumer` accepts a 2nd argument, it will be passed a `done` callback
+that should be called when the consumer is done processing the data event. This
+is mandatory if you intend to support backpressure (aka eventuate saturation).
+
+To fully support saturation, in addition to calling the `done` callback, the
+`consumer` function should have an `isSaturated` method, which when called will
+return a boolean value, indicating whether or not the consumer is saturated.
+When the eventuate produces a value that is consumed by the `consumer`,
+`isSaturated` will be checked. If `true` is returned, this will cause the 
+eventuate to produce on the `saturated` basic eventuate property (see below). 
+When the `done` callback is called, the eventuate will check `isSaturated`
+again. If no consumers are considered `saturated`, then the eventuate will
+produce on the `unsaturated` basic eventuate. 
+
+These events may be used to implement back-pressure on sources that support it.
 
 Returns `event`.
 
@@ -100,6 +116,14 @@ EventuateDestroyedError if further `produce` calls are attempted. This function
 is called automatically when the last consumer is removed if the
 `destroyResidual` option was set to true.
 
+### event.isDestroyed() 
+
+Returns `true` if the eventuate has been destroyed, otherwise `false`.
+
+### event.isSaturated() 
+
+Returns `true` if any consumers are saturated, otherwise `false`.
+
 ### event.error(consumer)
 
 A basic eventuate (see "basic eventuates" below) representing `Error` objects
@@ -136,6 +160,16 @@ event.consumerRemoved(function (eventConsumer) {
     console.log('a consumer was removed from event: ' + eventConsumer.name) 
 }) 
 ```
+
+### event.saturated
+
+A basic eventuate that produces (no payload) when any consumer enters a
+saturated state.
+
+### event.unsaturated
+
+A basic eventuate that produces (no payload), when the eventuate is no longer
+considered saturated (i.e. no consumers are saturated).
 
 ### event.destroyed(consumer)
 
