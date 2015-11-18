@@ -8,7 +8,7 @@ server.request = eventuate()
 
 // lets consume them!
 server.request(function onRequest (req) {
-    console.log('we got a request for ' + req.url)
+  console.log('we got a request for ' + req.url)
 })
 
 // lets produce some of these requests
