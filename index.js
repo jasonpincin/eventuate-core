@@ -31,6 +31,7 @@ function createEventuate (options) {
   eventuate.removeAllConsumers = removeAllConsumers
   eventuate.destroy            = destroy
   eventuate.isDestroyed        = isDestroyed
+  eventuate.isSaturated        = isSaturated
   eventuate.factory            = createEventuate
 
   return eventuate
@@ -54,13 +55,18 @@ function createEventuate (options) {
         var consumer = _consumers[i]
         if (consumer.length > 1) {
           consumer.outstanding++
-          if (!saturated && consumer.outstanding >= consumer.backpressure)
+          if (!saturated && consumer.outstanding >= consumer.backpressure) {
+            saturated = true
             eventuate.saturated.produce()
+          }
           consumer(data, function done () {
             consumer.outstanding--
             if (saturated && !consumers.some(function (consumer) {
               return consumer.outstanding >= consumer.backpressure
-            })) eventuate.unsaturated.produce()
+            })) {
+              saturated = false
+              eventuate.unsaturated.produce()
+            }
           })
         }
         else {
@@ -122,5 +128,9 @@ function createEventuate (options) {
 
   function isDestroyed () {
     return destroyed
+  }
+
+  function isSaturated () {
+    return saturated
   }
 }
