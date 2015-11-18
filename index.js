@@ -9,17 +9,20 @@ function createEventuate (options) {
   options.requireConsumption = options.requireConsumption !== undefined
     ? options.requireConsumption
     : false
-  options.destroyResidual    = options.destroyResidual !== undefined
+  options.destroyResidual = options.destroyResidual !== undefined
     ? options.destroyResidual
     : false
 
   var consumers = [],
-      destroyed = false
+      destroyed = false,
+      saturated = false
 
   eventuate.consumerAdded      = basicEventuate()
   eventuate.consumerRemoved    = basicEventuate()
   eventuate.error              = basicEventuate()
   eventuate.destroyed          = basicEventuate()
+  eventuate.saturated          = basicEventuate()
+  eventuate.unsaturated        = basicEventuate()
   eventuate.produce            = produce
   eventuate.consume            = consume
   eventuate.hasConsumer        = hasConsumer
@@ -47,7 +50,23 @@ function createEventuate (options) {
       eventuate.error.produce(data)
     else {
       var _consumers = consumers.slice()
-      for (var i = 0; i < _consumers.length; i++) _consumers[i](data)
+      for (var i = 0; i < _consumers.length; i++) {
+        var consumer = _consumers[i]
+        if (consumer.length > 1) {
+          consumer.outstanding++
+          if (!saturated && consumer.outstanding >= consumer.backpressure)
+            eventuate.saturated.produce()
+          consumer(data, function done () {
+            consumer.outstanding--
+            if (saturated && !consumers.some(function (consumer) {
+              return consumer.outstanding >= consumer.backpressure
+            })) eventuate.unsaturated.produce()
+          })
+        }
+        else {
+          consumer(data)
+        }
+      }
     }
   }
 
@@ -56,6 +75,10 @@ function createEventuate (options) {
       throw new TypeError('eventuate consumer must be a function')
 
     if (!destroyed) {
+      consumer.outstanding = 0
+      consumer.backpressure = typeof consumer.backpressure === 'number'
+        ? consumer.backpressure
+        : 10
       consumers.push(consumer)
       eventuate.consumerAdded.produce(consumer)
     }
