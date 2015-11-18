@@ -54,15 +54,13 @@ function createEventuate (options) {
       for (var i = 0; i < _consumers.length; i++) {
         var consumer = _consumers[i]
         if (consumer.length > 1) {
-          consumer.outstanding++
-          if (!saturated && consumer.outstanding >= consumer.backpressure) {
+          if (!saturated && consumer.isSaturated()) {
             saturated = true
             eventuate.saturated.produce()
           }
           consumer(data, function done () {
-            consumer.outstanding--
             if (saturated && !consumers.some(function (consumer) {
-              return consumer.outstanding >= consumer.backpressure
+              return consumer.isSaturated()
             })) {
               saturated = false
               eventuate.unsaturated.produce()
@@ -81,10 +79,9 @@ function createEventuate (options) {
       throw new TypeError('eventuate consumer must be a function')
 
     if (!destroyed) {
-      consumer.outstanding = 0
-      consumer.backpressure = typeof consumer.backpressure === 'number'
-        ? consumer.backpressure
-        : 10
+      consumer.isSaturated = typeof consumer.isSaturated === 'function'
+        ? consumer.isSaturated
+        : function () { return false }
       consumers.push(consumer)
       eventuate.consumerAdded.produce(consumer)
     }
