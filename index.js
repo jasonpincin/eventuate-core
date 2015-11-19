@@ -55,14 +55,12 @@ function createEventuate (options) {
         var consumer = _consumers[i]
         if (consumer.length > 1) {
           consumer(data, function done () {
-            if (saturated && !consumers.some(function (consumer) {
-              return consumer.isSaturated()
-            })) {
+            if (saturated && !isSaturated()) {
               saturated = false
               eventuate.unsaturated.produce()
             }
           })
-          if (!saturated && consumer.isSaturated()) {
+          if (!saturated && isSaturated()) {
             saturated = true
             eventuate.saturated.produce()
           }
@@ -128,6 +126,10 @@ function createEventuate (options) {
   }
 
   function isSaturated () {
-    return saturated
+    return consumers.some(consumerIsSaturated)
+
+    function consumerIsSaturated (consumer) {
+      return consumer.isSaturated()
+    }
   }
 }
