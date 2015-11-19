@@ -13,9 +13,9 @@ function createEventuate (options) {
     ? options.destroyResidual
     : false
 
-  var consumers = [],
-      destroyed = false,
-      saturated = false
+  var consumers          = [],
+      destroyed          = false,
+      eventuateSaturated = false
 
   eventuate.consumerAdded      = basicEventuate()
   eventuate.consumerRemoved    = basicEventuate()
@@ -51,24 +51,8 @@ function createEventuate (options) {
       eventuate.error.produce(data)
     else {
       var _consumers = consumers.slice()
-      for (var i = 0; i < _consumers.length; i++) {
-        var consumer = _consumers[i]
-        if (consumer.length > 1) {
-          consumer(data, function done () {
-            if (saturated && !isSaturated()) {
-              saturated = false
-              eventuate.unsaturated.produce()
-            }
-          })
-          if (!saturated && isSaturated()) {
-            saturated = true
-            eventuate.saturated.produce()
-          }
-        }
-        else {
-          consumer(data)
-        }
-      }
+      for (var i = 0; i < _consumers.length; i++)
+        _consumers[i](data)
     }
   }
 
@@ -76,15 +60,37 @@ function createEventuate (options) {
     if (typeof consumer !== 'function')
       throw new TypeError('eventuate consumer must be a function')
 
+    var saturated = false
+
     if (!destroyed) {
-      consumer.isSaturated = consumer.isSaturated || function () {
-        return false
-      }
+      consumer.saturated = consumerSaturated
+      consumer.unsaturated = consumerUnsaturated
+      consumer.isSaturated = consumerIsSaturated
       consumers.push(consumer)
       eventuate.consumerAdded.produce(consumer)
     }
 
     return eventuate
+
+    function consumerSaturated () {
+      saturated = true
+      if (!eventuateSaturated) {
+        eventuateSaturated = true
+        eventuate.saturated.produce()
+      }
+    }
+
+    function consumerUnsaturated () {
+      saturated = false
+      if (!consumers.some(filterSaturated)) {
+        eventuateSaturated = false
+        eventuate.unsaturated.produce()
+      }
+    }
+
+    function consumerIsSaturated () {
+      return saturated
+    }
   }
 
   function hasConsumer (consumer) {
@@ -126,10 +132,10 @@ function createEventuate (options) {
   }
 
   function isSaturated () {
-    return consumers.some(consumerIsSaturated)
+    return eventuateSaturated
+  }
 
-    function consumerIsSaturated (consumer) {
-      return consumer.isSaturated()
-    }
+  function filterSaturated (consumer) {
+    return consumer.isSaturated()
   }
 }
