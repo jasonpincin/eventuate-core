@@ -34,6 +34,9 @@ function createEventuate (options) {
   eventuate.isSaturated        = isSaturated
   eventuate.factory            = createEventuate
 
+  eventuate._consumerSaturated   = consumerSaturated
+  eventuate._consumerUnsaturated = consumerUnsaturated
+
   return eventuate
 
   function eventuate (consumer) {
@@ -74,18 +77,12 @@ function createEventuate (options) {
 
     function consumerSaturated () {
       saturated = true
-      if (!eventuateSaturated) {
-        eventuateSaturated = true
-        eventuate.saturated.produce()
-      }
+      eventuate._consumerSaturated(consumer)
     }
 
     function consumerUnsaturated () {
       saturated = false
-      if (!consumers.some(filterSaturated)) {
-        eventuateSaturated = false
-        eventuate.unsaturated.produce()
-      }
+      eventuate._consumerUnsaturated(consumer)
     }
 
     function consumerIsSaturated () {
@@ -133,6 +130,20 @@ function createEventuate (options) {
 
   function isSaturated () {
     return eventuateSaturated
+  }
+
+  function consumerSaturated (consumer) {
+    if (!eventuateSaturated) {
+      eventuateSaturated = true
+      eventuate.saturated.produce(consumer)
+    }
+  }
+
+  function consumerUnsaturated (consumer) {
+    if (!consumers.some(filterSaturated)) {
+      eventuateSaturated = false
+      eventuate.unsaturated.produce(consumer)
+    }
   }
 
   function filterSaturated (consumer) {
