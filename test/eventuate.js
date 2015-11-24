@@ -16,7 +16,7 @@ test('eventuate', timeout, function (t) {
     event.removeConsumer(consumer1)
   }
 
-  t.equal(typeof event(consumer1), 'function', 'consume returns eventuate')
+  t.equal(typeof event(consumer1).end, 'function', 'returns consumption obj')
   t.ok(event.hasConsumer(), 'has consumers after consumer added')
   event.produce('test1')
   t.notOk(event.hasConsumer(), 'has no consumers after consumer removed')

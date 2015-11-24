@@ -43,7 +43,9 @@ test('cannot produce after destroy', timeout, function (t) {
   var event = eventuate()
   event.destroy()
   t.ok(event.isDestroyed())
-  t.throws(event.produce, EventuateDestroyedError)
+  t.throws(function () {
+    event.produce()
+  }, EventuateDestroyedError)
 })
 
 test('consumer not added after destroy', timeout, function (t) {

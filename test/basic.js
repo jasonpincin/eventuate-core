@@ -17,7 +17,7 @@ test('basic eventuate', timeout, function (t) {
     event.removeConsumer(consumer1)
   }
 
-  t.equal(typeof event(consumer1), 'function', 'consume returns eventuate')
+  t.equal(typeof event(consumer1).end, 'function', 'returns consumption obj')
   event.produce('test1')
 
   t.throws(event, 'consume requires a function')

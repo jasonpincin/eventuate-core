@@ -6,7 +6,7 @@ test('supports backpressure (through saturation)', timeout, function (t) {
   t.plan(3)
 
   var event = eventuate()
-  event.consume(consumer1)
+  var consumption1 = event.consume(consumer1)
   event.consume(consumer2)
 
   t.equal(event.isSaturated(), false)
@@ -17,9 +17,9 @@ test('supports backpressure (through saturation)', timeout, function (t) {
   })
 
   function consumer1 (data) {
-    consumer1.saturated()
+    consumption1.saturated()
     setTimeout(function () {
-      consumer1.unsaturated()
+      consumption1.unsaturated()
     }, 50)
   }
   function consumer2 (data) {
@@ -49,7 +49,7 @@ test('saturated production is bordered by unsaturated', timeout, function (t) {
       saturatedCount   = 0,
       unsaturatedCount = 0,
       running          = 0
-  event.consume(consumer1)
+  var consumption1 = event.consume(consumer1)
 
   event.saturated(function () {
     saturatedCount++
@@ -67,11 +67,11 @@ test('saturated production is bordered by unsaturated', timeout, function (t) {
 
   function consumer1 (data) {
     running++
-    consumer1.saturated()
+    consumption1.saturated()
     setTimeout(function () {
       running--
       if (!running)
-        consumer1.unsaturated()
+        consumption1.unsaturated()
     }, 50)
   }
 })
@@ -80,8 +80,8 @@ test('all downstream consumers must be unsaturated', timeout, function (t) {
   t.plan(3)
 
   var event = eventuate()
-  event.consume(consumer1)
-  event.consume(consumer2)
+  var consumption1 = event.consume(consumer1)
+  var consumption2 = event.consume(consumer2)
 
   event.produce('test')
   t.ok(event.isSaturated(), 'saturated with 2/2 consumers saturated')
@@ -93,15 +93,15 @@ test('all downstream consumers must be unsaturated', timeout, function (t) {
   }, 125)
 
   function consumer1 (data) {
-    consumer1.saturated()
+    consumption1.saturated()
     setTimeout(function () {
-      consumer1.unsaturated()
+      consumption1.unsaturated()
     }, 50)
   }
   function consumer2 (data) {
-    consumer2.saturated()
+    consumption2.saturated()
     setTimeout(function () {
-      consumer2.unsaturated()
+      consumption2.unsaturated()
     }, 100)
   }
 })
