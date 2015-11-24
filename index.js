@@ -13,140 +13,141 @@ function createEventuate (options) {
     ? options.destroyResidual
     : false
 
-  var consumers          = [],
-      destroyed          = false,
-      eventuateSaturated = false
+  eventuate.consumerAdded        = basicEventuate()
+  eventuate.consumerRemoved      = basicEventuate()
+  eventuate.error                = basicEventuate()
+  eventuate.destroyed            = basicEventuate()
+  eventuate.saturated            = basicEventuate()
+  eventuate.unsaturated          = basicEventuate()
+  eventuate.produce              = produce
+  eventuate.consume              = consume
+  eventuate.hasConsumer          = hasConsumer
+  eventuate.getConsumers         = getConsumers
+  eventuate.removeConsumer       = removeConsumer
+  eventuate.removeAllConsumers   = removeAllConsumers
+  eventuate.destroy              = destroy
+  eventuate.isDestroyed          = isDestroyed
+  eventuate.isSaturated          = isSaturated
+  eventuate.factory              = createEventuate
 
-  eventuate.consumerAdded      = basicEventuate()
-  eventuate.consumerRemoved    = basicEventuate()
-  eventuate.error              = basicEventuate()
-  eventuate.destroyed          = basicEventuate()
-  eventuate.saturated          = basicEventuate()
-  eventuate.unsaturated        = basicEventuate()
-  eventuate.produce            = produce
-  eventuate.consume            = consume
-  eventuate.hasConsumer        = hasConsumer
-  eventuate.getConsumers       = getConsumers
-  eventuate.removeConsumer     = removeConsumer
-  eventuate.removeAllConsumers = removeAllConsumers
-  eventuate.destroy            = destroy
-  eventuate.isDestroyed        = isDestroyed
-  eventuate.isSaturated        = isSaturated
-  eventuate.factory            = createEventuate
-
+  eventuate._consumers           = []
   eventuate._consumerSaturated   = consumerSaturated
   eventuate._consumerUnsaturated = consumerUnsaturated
+  eventuate._options             = options
+  eventuate._destroyed           = false
+  eventuate._saturated           = false
 
   return eventuate
 
   function eventuate (consumer) {
     return eventuate.consume(consumer)
   }
+}
 
-  function produce (data) {
-    if (destroyed)
-      throw new EventuateDestroyedError('Unable to produce after destroy', data)
-    if (options.requireConsumption && consumers.length === 0)
-      throw (data instanceof Error)
-        ? data
-        : new EventuateUnconsumedError('Unconsumed eventuate data', data)
-    if (data instanceof Error && eventuate.error.hasConsumer())
-      eventuate.error.produce(data)
-    else {
-      var _consumers = consumers.slice()
-      for (var i = 0; i < _consumers.length; i++)
-        _consumers[i](data)
-    }
+function produce (data) {
+  if (this._destroyed)
+    throw new EventuateDestroyedError('Unable to produce after destroy', data)
+  if (this._options.requireConsumption && this._consumers.length === 0)
+    throw (data instanceof Error)
+      ? data
+      : new EventuateUnconsumedError('Unconsumed eventuate data', data)
+  if (data instanceof Error && this.error.hasConsumer())
+    this.error.produce(data)
+  else {
+    var consumers = this._consumers.slice()
+    for (var i = 0; i < consumers.length; i++)
+      consumers[i](data)
+  }
+}
+
+function consume (consumer) {
+  var self = this
+
+  if (typeof consumer !== 'function')
+    throw new TypeError('eventuate consumer must be a function')
+
+  if (!this._destroyed) {
+    consumer._saturated = false
+    this._consumers.push(consumer)
+    this.consumerAdded.produce(consumer)
   }
 
-  function consume (consumer) {
-    if (typeof consumer !== 'function')
-      throw new TypeError('eventuate consumer must be a function')
-
-    var saturated = false
-
-    if (!destroyed) {
-      consumer.saturated = consumerSaturated
-      consumer.unsaturated = consumerUnsaturated
-      consumer.isSaturated = consumerIsSaturated
-      consumers.push(consumer)
-      eventuate.consumerAdded.produce(consumer)
-    }
-
-    return eventuate
-
-    function consumerSaturated () {
-      saturated = true
-      eventuate._consumerSaturated(consumer)
-    }
-
-    function consumerUnsaturated () {
-      saturated = false
-      eventuate._consumerUnsaturated(consumer)
-    }
-
-    function consumerIsSaturated () {
-      return saturated
+  return {
+    end: function consumptionEnd () {
+      return self.removeConsumer(consumer)
+    },
+    saturated: function consumptionSaturated () {
+      consumer._saturated = true
+      self._consumerSaturated(consumer)
+    },
+    unsaturated: function consumptionUnsaturated () {
+      consumer._saturated = false
+      self._consumerUnsaturated(consumer)
+    },
+    isSaturated: function consumptionSaturated () {
+      return consumer._saturated
     }
   }
+}
 
-  function hasConsumer (consumer) {
-    return consumer ? consumers.indexOf(consumer) > -1 : consumers.length > 0
-  }
+function hasConsumer (consumer) {
+  return consumer
+    ? this._consumers.indexOf(consumer) > -1
+    : this._consumers.length > 0
+}
 
-  function getConsumers () {
-    return consumers.slice()
-  }
+function getConsumers () {
+  return this._consumers.slice()
+}
 
-  function removeConsumer (consumer) {
-    var consumerIdx = consumers.indexOf(consumer)
-    if (consumerIdx === -1) return false
-    consumers.splice(consumerIdx, 1)
-    eventuate.consumerRemoved.produce(consumer)
-    if (typeof consumer.removed === 'function') consumer.removed()
-    if (!consumers.length && options.destroyResidual) eventuate.destroy()
+function removeConsumer (consumer) {
+  var consumerIdx = this._consumers.indexOf(consumer)
+  if (consumerIdx === -1) return false
+  this._consumers.splice(consumerIdx, 1)
+  this.consumerRemoved.produce(consumer)
+  if (typeof consumer.removed === 'function') consumer.removed()
+  if (!this._consumers.length && this._options.destroyResidual) this.destroy()
+  return true
+}
+
+function removeAllConsumers () {
+  var consumers = this.getConsumers()
+  for (var i = this._consumers.length - 1; i >= 0; i--)
+    this.removeConsumer(consumers[i])
+}
+
+function destroy () {
+  if (!this._destroyed) {
+    this._destroyed = true
+    this.removeAllConsumers()
+    this.destroyed.produce()
     return true
   }
+  return false
+}
 
-  function removeAllConsumers () {
-    var consumers = eventuate.getConsumers()
-    for (var i = consumers.length - 1; i >= 0; i--)
-      eventuate.removeConsumer(consumers[i])
-  }
+function isDestroyed () {
+  return this._destroyed
+}
 
-  function destroy () {
-    if (!destroyed) {
-      destroyed = true
-      eventuate.removeAllConsumers()
-      eventuate.destroyed.produce()
-      return true
-    }
-    return false
-  }
+function isSaturated () {
+  return this._saturated
+}
 
-  function isDestroyed () {
-    return destroyed
+function consumerSaturated (consumer) {
+  if (!this._saturated) {
+    this._saturated = true
+    this.saturated.produce(consumer)
   }
+}
 
-  function isSaturated () {
-    return eventuateSaturated
+function consumerUnsaturated (consumer) {
+  if (!this._consumers.some(filterSaturated)) {
+    this._saturated = false
+    this.unsaturated.produce(consumer)
   }
+}
 
-  function consumerSaturated (consumer) {
-    if (!eventuateSaturated) {
-      eventuateSaturated = true
-      eventuate.saturated.produce(consumer)
-    }
-  }
-
-  function consumerUnsaturated (consumer) {
-    if (!consumers.some(filterSaturated)) {
-      eventuateSaturated = false
-      eventuate.unsaturated.produce(consumer)
-    }
-  }
-
-  function filterSaturated (consumer) {
-    return consumer.isSaturated()
-  }
+function filterSaturated (consumer) {
+  return consumer._saturated
 }
