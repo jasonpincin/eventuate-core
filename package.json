@@ -38,7 +38,9 @@
     "zuul": "~3.7.2"
   },
   "dependencies": {
-    "define-error": "~1.1.0"
+    "basic-eventuate": "0.0.0",
+    "define-error": "~1.1.0",
+    "object-assign": "~4.0.1"
   },
   "scripts": {
     "test": "npm run -s faucet && npm run -s lint && npm run -s check-cover",
