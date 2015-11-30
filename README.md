@@ -40,7 +40,7 @@ server.request.produce({ url: '/bye.js' })
 var eventuate = require('eventuate-core') 
 ```
 
-### var event = eventuate()
+### var event = eventuate(options)
 
 Create an object, `event`, that represents a consumable event type.
 
@@ -71,7 +71,8 @@ To fully support saturation, in addition to calling the `done` callback, the
 return a boolean value, indicating whether or not the consumer is saturated.
 When the eventuate produces a value that is consumed by the `consumer`,
 `isSaturated` will be checked. If `true` is returned, this will cause the 
-eventuate to produce on the `saturated` basic eventuate property (see below). 
+eventuate to produce on the `saturated` 
+[basic eventuate](https://github.com/jasonpincin/basic-eventuate) property. 
 When the `done` callback is called, the eventuate will check `isSaturated`
 again. If no consumers are considered `saturated`, then the eventuate will
 produce on the `unsaturated` basic eventuate. 
@@ -126,10 +127,10 @@ Returns `true` if any consumers are saturated, otherwise `false`.
 
 ### event.error(consumer)
 
-A basic eventuate (see "basic eventuates" below) representing `Error` objects
-produced by the eventuate. By assigning a handler to the `event.error`, any
-`Error` objects produced will no longer be supplied to `event` consumers; only
-`event.error` consumers will receive them.
+A [basic eventuate](https://github.com/jasonpincin/basic-eventuate) representing 
+`Error` objects produced by the eventuate. By assigning a handler to the 
+`event.error`, any `Error` objects produced will no longer be supplied to 
+`event` consumers; only `event.error` consumers will receive them.
 
 ### event.consumerAdded(consumer)
 
@@ -204,27 +205,13 @@ Constructor of error potentially thrown from `eventuate.produce` when
 Constructor of error thrown from `eventuate.produce` when the eventuate is
 already destroyed.
 
-## basic eventuates
-
-```javascript 
-var basicEventuate = require('eventuate-core/basic') 
-```
-
-Basic eventuates offer minimal functionality: production, consumption, and
-limited consumer management. They offer: `produce`, `consume`, `hasConsumer`,
-and `removeConsumer`. That also have a `factory` property that points to the
-basic eventuate factory (`eventuate-core/basic`).
-
-Basic eventuates are used internally to implement the "sub-eventuates" `error`,
-`consumerRemoved`, `consumerAdded`, and `destroyed`. 
-
 ## supporting modules
 
 The following modules support and extend the functionality of eventuate and are
 included in the [eventuate](https://github.com/jasonpincin/eventuate) module 
 (without the _-core_).
 
-* [eventuate-once](https://github.com/jasonpincin/eventuate-once) - act once
+* [eventuate-next](https://github.com/jasonpincin/eventuate-next) - act once
   (via callback or promise) upon the next occurrence of an eventuate
 * [eventuate-filter](https://github.com/jasonpincin/eventuate-filter) - create
   filtered eventuate, acting as subset of broader eventuate
@@ -232,6 +219,34 @@ included in the [eventuate](https://github.com/jasonpincin/eventuate) module
   eventuates, producing events transformed from the source eventuate
 * [eventuate-reduce](https://github.com/Georgette/eventuate-reduce) - create an
   eventuate that reduces events produced from a source eventuate
+
+## mixin
+
+The eventuate core mixin may be used to add eventuate core functionality to
+another object. You should first assign the mixin's properties, then call the
+mixin in the context of your object to initialize it.
+
+For example:
+
+```javascript
+var eventuateCoreMixin = require('eventuate-core/mixin')
+
+var myObject = {}
+Object.assign(myObject, eventuateCoreMixin.properties)
+eventuateCoreMixin.call(myObject /*, options */)
+```
+
+## constructor
+
+Alternatively, the constructor may be required and used for extending or
+creating new eventuate objects. Be warned, that `new EventuateCore` will return
+a non-function object, meaning the `event(consumer)` shortcut will not work.
+The long-form `event.consume(consumer)` will need to be required.
+
+```javascript
+const EventuateCore = require('eventuate-core/constructor')
+var event = new EventuateCore
+```
 
 ## install
 
