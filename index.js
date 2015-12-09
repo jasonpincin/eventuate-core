@@ -2,6 +2,7 @@ var assign = require('object-assign'),
     mixin  = require('./mixin')
 
 module.exports = eventuateFactory
+eventuateFactory.mixin = mixin
 
 function eventuateFactory (options) {
   return mixin.call(assign(eventuate, mixin.properties, {
