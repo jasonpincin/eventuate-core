@@ -40,12 +40,12 @@ module.exports = assign(function eventuate (options) {
 function produce (data) {
   if (this._destroyed)
     throw new EventuateDestroyedError('Unable to produce after destroy', data)
+  if (data instanceof Error && this.error.hasConsumer())
+    this.error.produce(data)
   if (this._options.requireConsumption && this._consumers.length === 0)
     throw (data instanceof Error)
       ? data
       : new EventuateUnconsumedError('Unconsumed eventuate data', data)
-  if (data instanceof Error && this.error.hasConsumer())
-    this.error.produce(data)
   else {
     var consumers = this._consumers.slice()
     for (var i = 0; i < consumers.length; i++)
@@ -65,9 +65,19 @@ function consume (consumer) {
     this.consumerAdded.produce(consumer)
   }
 
+  // rewrite this as a constructor
   return {
-    end: function consumptionEnd () {
+    error: function error (consumr) {
+      self.error.consume(consumer)
+      return this
+    },
+    // is stop a better verb here?
+    end: function end () {
       return self.removeConsumer(consumer)
+    },
+    then: function then (onDestroy) {
+      // TODO: implement
+      self.destroyed(onDestroy)
     },
     saturated: function consumptionSaturated () {
       consumer._saturated = true
