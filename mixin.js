@@ -18,7 +18,6 @@ module.exports = assign(function eventuate (options) {
   this.destroyed       = basicEventuate()
   this.saturated       = basicEventuate()
   this.unsaturated     = basicEventuate()
-  this.lastValue       = undefined
   this._consumers      = []
   this._options        = options
   this._destroyed      = false
@@ -72,13 +71,8 @@ function consume (consumer) {
       self.error.consume(consumer)
       return this
     },
-    // is stop a better verb here?
     end: function end () {
       return self.removeConsumer(consumer)
-    },
-    then: function then (onDestroy) {
-      // TODO: implement
-      self.destroyed(onDestroy)
     },
     saturated: function consumptionSaturated () {
       consumer._saturated = true
@@ -123,8 +117,8 @@ function removeAllConsumers () {
 function destroy () {
   if (!this._destroyed) {
     this._destroyed = true
-    this.removeAllConsumers()
     this.destroyed.produce()
+    this.removeAllConsumers()
     return true
   }
   return false
