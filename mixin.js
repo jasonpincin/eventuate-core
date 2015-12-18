@@ -18,6 +18,7 @@ module.exports = assign(function eventuate (options) {
   this.destroyed       = basicEventuate()
   this.saturated       = basicEventuate()
   this.unsaturated     = basicEventuate()
+  this.lastValue       = undefined
   this._consumers      = []
   this._options        = options
   this._destroyed      = false
@@ -40,12 +41,12 @@ module.exports = assign(function eventuate (options) {
 function produce (data) {
   if (this._destroyed)
     throw new EventuateDestroyedError('Unable to produce after destroy', data)
-  if (data instanceof Error && this.error.hasConsumer())
-    this.error.produce(data)
   if (this._options.requireConsumption && this._consumers.length === 0)
     throw (data instanceof Error)
       ? data
       : new EventuateUnconsumedError('Unconsumed eventuate data', data)
+  if (data instanceof Error && this.error.hasConsumer())
+    this.error.produce(data)
   else {
     var consumers = this._consumers.slice()
     for (var i = 0; i < consumers.length; i++)
