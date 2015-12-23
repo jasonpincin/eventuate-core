@@ -2,29 +2,37 @@ var test      = require('tape'),
     eventuate = require('..'),
     timeout   = { timeout: 1000 }
 
-test('removeConsumer returns bool based on existance', timeout, function (t) {
-  t.plan(3)
+test('multiple removeConsumer emits 1 consumerRemoved', timeout, function (t) {
+  t.plan(2)
 
   var event = eventuate()
   event(consumer1)
+  event.on('consumerRemoved', function (consumer) {
+    t.equal(consumer, consumer1, 'got consumerRemoved')
+  })
 
   t.ok(event.hasConsumer(), 'consumer1 added')
-  t.equal(event.removeConsumer(consumer1), true, 'consumer1 removed')
-  t.equal(event.removeConsumer(consumer1), false, 'consumer1 not removed')
+  event.removeConsumer(consumer1)
+  event.removeConsumer(consumer1)
 
   function consumer1 () {}
 })
 
-test('consumer.removed called if present', timeout, function (t) {
-  t.plan(1)
+test('end emitted from consumption object', timeout, function (t) {
+  t.plan(2)
 
   var event = eventuate()
-  consumer.removed = function () {
-    t.pass('consumer.removed called')
-  }
 
-  event(consumer)
+  var consumption = event(consumer)
+  consumption.once('end', function () {
+    t.pass('end emitted on removeConsumer()')
+  })
   event.removeConsumer(consumer)
+
+  consumption = event(consumer)
+  consumption.once('end', function () {
+    t.pass('end emitted on end()')
+  }).end()
 
   function consumer () {}
 })

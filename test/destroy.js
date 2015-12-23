@@ -10,8 +10,8 @@ test('destroyResidual destroys on last removeConsumer', timeout, function (t) {
   event(consumer1)
   event(consumer2)
 
-  event.destroyed(function () {
-    t.equal(event.isDestroyed(), true, 'destroy called')
+  event.on('destroy', function () {
+    t.equal(event.isDestroyed(), true, 'destroy emitted')
   })
   event.removeAllConsumers()
 
@@ -26,7 +26,7 @@ test('!destroyResidual causes eventuate to persist', timeout, function (t) {
   event(consumer1)
   event(consumer2)
 
-  event.destroyed(function () {
+  event.on('destroy', function () {
     t.fail('destroyed should not be called')
   })
   event.removeAllConsumers()
@@ -48,19 +48,14 @@ test('cannot produce after destroy', timeout, function (t) {
   }, EventuateDestroyedError)
 })
 
-test('consumer not added after destroy', timeout, function (t) {
+test('destroy emitted once', timeout, function (t) {
   t.plan(1)
 
   var event = eventuate()
+  event.on('destroy', function () {
+    t.pass('destroy emitted')
+  })
   event.destroy()
-  event(function () {})
-  t.notOk(event.hasConsumer(), 'consumer was not added')
-})
-
-test('2nd destroy call returns false', timeout, function (t) {
-  t.plan(1)
-
-  var event = eventuate()
   event.destroy()
-  t.equal(event.destroy(), false)
+  event.destroy()
 })

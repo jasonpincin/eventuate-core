@@ -7,7 +7,7 @@ test('consumer added', { timeout: 1000 }, function (t) {
   function consumer1 () {}
 
   var event1 = eventuate()
-  event1.consumerAdded(function (consumer) {
+  event1.on('consumerAdded', function (consumer) {
     t.equal(consumer, consumer1, 'should be called with consumer')
   })
   event1(consumer1)

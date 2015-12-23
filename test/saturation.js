@@ -12,7 +12,7 @@ test('supports backpressure (through saturation)', timeout, function (t) {
   t.equal(event.isSaturated(), false)
   event.produce('test')
   t.equal(event.isSaturated(), true)
-  event.unsaturated(function () {
+  event.on('unsaturated', function () {
     t.pass('got unsaturated event')
   })
 
@@ -51,10 +51,10 @@ test('saturated production is bordered by unsaturated', timeout, function (t) {
       running          = 0
   var consumption1 = event.consume(consumer1)
 
-  event.saturated(function () {
+  event.on('saturated', function () {
     saturatedCount++
   })
-  event.unsaturated(function () {
+  event.on('unsaturated', function () {
     unsaturatedCount++
   })
   event.produce('test')

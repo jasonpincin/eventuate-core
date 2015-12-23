@@ -8,7 +8,7 @@ test('consumer removed', { timeout: 1000 }, function (t) {
 
   var event1 = eventuate()
   event1(consumer1)
-  event1.consumerRemoved(function (consumer) {
+  event1.on('consumerRemoved', function (consumer) {
     t.equal(consumer, consumer1, 'should be called with consumer')
   })
   event1.removeConsumer(consumer1)

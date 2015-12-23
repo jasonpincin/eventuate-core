@@ -45,7 +45,7 @@ test('errorConsumer removed by consumption end', timeout, function (t) {
   event.produceError(new Error('boom'))
   consumption.end()
   t.ok(!event.hasConsumer(), 'consumer gone')
-  t.ok(!event.error.hasConsumer(), 'errorConsumer gone')
+  t.equal(event.listenerCount('error'), 0, 'errorConsumer gone')
   t.throws(function () {
     event.produceError(new Error('boom'))
   }, Error, 'throws after errorConsumer removed')
@@ -66,4 +66,12 @@ test('produce string err with no errorConsumer throws', timeout, function (t) {
   t.throws(function () {
     event.produceError('boom')
   }, Error, 'throws Error')
+})
+
+test('err thrown for invalid errConsumer', timeout, function (t) {
+  t.plan(1)
+  var event = eventuate()
+  t.throws(function () {
+    event.consume(function () {}, {})
+  }, TypeError, 'throws')
 })

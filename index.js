@@ -1,15 +1,17 @@
-var assign = require('object-assign'),
-    mixin  = require('./mixin')
+var Eventuate    = require('./constructor'),
+    assign       = require('object-assign')
 
 module.exports = eventuateFactory
-eventuateFactory.mixin = mixin
+eventuateFactory.constructor = Eventuate
 
 function eventuateFactory (options) {
-  return mixin.call(assign(eventuate, mixin.properties, {
+  Eventuate.call(assign(eventuate, Eventuate.prototype, {
     factory: eventuateFactory
   }), options)
+  return eventuate
 
-  function eventuate (consumer, errorConsumer) {
-    return eventuate.consume(consumer, errorConsumer)
+  function eventuate (consumer, errConsumer) {
+    return eventuate.consume(consumer, errConsumer)
   }
 }
+
