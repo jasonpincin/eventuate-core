@@ -25,6 +25,7 @@ module.exports = assign(function eventuate (options) {
   return this
 }, { properties: {
   produce             : produce,
+  produceError        : produceError,
   consume             : consume,
   hasConsumer         : hasConsumer,
   getConsumers        : getConsumers,
@@ -44,16 +45,22 @@ function produce (data) {
     throw (data instanceof Error)
       ? data
       : new EventuateUnconsumedError('Unconsumed eventuate data', data)
-  if (data instanceof Error && this.error.hasConsumer())
-    this.error.produce(data)
-  else {
-    var consumers = this._consumers.slice()
-    for (var i = 0; i < consumers.length; i++)
-      consumers[i](data)
-  }
+  var consumers = this._consumers.slice()
+  for (var i = 0; i < consumers.length; i++)
+    consumers[i](data)
 }
 
-function consume (consumer) {
+function produceError (err) {
+  if (this._destroyed)
+    throw new EventuateDestroyedError('Unable to produce after destroy', err)
+  if (!this.error.hasConsumer())
+    throw (err instanceof Error)
+      ? err
+      : new Error(err)
+  this.error.produce(err)
+}
+
+function consume (consumer, errorConsumer) {
   var self = this
 
   if (typeof consumer !== 'function')
@@ -62,27 +69,26 @@ function consume (consumer) {
   if (!this._destroyed) {
     consumer._saturated = false
     this._consumers.push(consumer)
+    if (errorConsumer)
+      this.error.consume(errorConsumer)
     this.consumerAdded.produce(consumer)
   }
 
   // rewrite this as a constructor
   return {
-    error: function error (consumr) {
-      self.error.consume(consumer)
-      return this
-    },
     end: function end () {
+      self.error.removeConsumer(errorConsumer)
       return self.removeConsumer(consumer)
     },
-    saturated: function consumptionSaturated () {
+    saturated: function saturated () {
       consumer._saturated = true
       self._consumerSaturated(consumer)
     },
-    unsaturated: function consumptionUnsaturated () {
+    unsaturated: function unsaturated () {
       consumer._saturated = false
       self._consumerUnsaturated(consumer)
     },
-    isSaturated: function consumptionSaturated () {
+    isSaturated: function isSaturated () {
       return consumer._saturated
     }
   }

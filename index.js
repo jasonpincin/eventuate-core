@@ -9,7 +9,7 @@ function eventuateFactory (options) {
     factory: eventuateFactory
   }), options)
 
-  function eventuate (consumer) {
-    return eventuate.consume(consumer)
+  function eventuate (consumer, errorConsumer) {
+    return eventuate.consume(consumer, errorConsumer)
   }
 }
