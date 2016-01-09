@@ -20,7 +20,6 @@ function Eventuate (options) {
     _saturated: false
   })
 }
-// inherits(Eventuate, EventEmitter)
 assign(Eventuate.prototype, EventEmitter.prototype, {
   constructor         : Eventuate,
   on                  : on,
@@ -37,9 +36,19 @@ assign(Eventuate.prototype, EventEmitter.prototype, {
   destroy             : destroy,
   isDestroyed         : isDestroyed,
   isSaturated         : isSaturated,
+  _setSaturated       : _setSaturated,
+  _setUnsaturated     : _setUnsaturated,
   _consumerSaturated  : _consumerSaturated,
   _consumerUnsaturated: _consumerUnsaturated
 })
+Eventuate.isEventuate = isEventuate
+
+function isEventuate (e) {
+  return (
+    typeof e.on === 'function' &&
+    typeof e.consume === 'function'
+  )
+}
 
 function produce (data) {
   if (this._destroyed)
@@ -58,20 +67,35 @@ function produceError (err) {
 }
 
 function on (ev, cb) {
-  var consumerAdded = (ev === 'data' && !this.hasConsumer(cb))
+  var newConsumer = (ev === 'data' && !this.hasConsumer(cb))
+  var firstConsumer = (newConsumer && !this.hasConsumer())
+  if (newConsumer)
+    this.emit('addConsumer', cb)
+  if (firstConsumer)
+    this.emit('addFirstConsumer', cb)
   var result = EventEmitter.prototype.on.call(this, ev, cb)
-  if (consumerAdded)
+  if (firstConsumer)
+    this.emit('firstConsumerAdded', cb)
+  if (newConsumer)
     this.emit('consumerAdded', cb)
   return result
 }
 
 function removeListener (ev, cb) {
-  var consumerRemoved = (ev === 'data' && this.hasConsumer(cb))
+  var existingConsumer = (ev === 'data' && this.hasConsumer(cb))
+  var lastConsumer = (existingConsumer && this.consumers().length === 1)
+  if (existingConsumer)
+    this.emit('removeConsumer', cb)
+  if (lastConsumer)
+    this.emit('removeLastConsumer', cb)
   var result = EventEmitter.prototype.removeListener.call(this, ev, cb)
-  if (consumerRemoved) {
+  if (existingConsumer) {
     this.emit('consumerRemoved', cb)
-    if (this._options.destroyResidual && !this.hasConsumer())
-      this.destroy()
+    if (!this.hasConsumer()) {
+      this.emit('lastConsumerRemoved', cb)
+      if (this._options.destroyResidual)
+        this.destroy()
+    }
   }
   return result
 }
@@ -148,17 +172,29 @@ function isSaturated () {
   return this._saturated
 }
 
-function _consumerSaturated (consumer) {
+function _setSaturated () {
   if (!this._saturated) {
     this._saturated = true
     this.emit('saturated')
   }
+  return this
+}
+
+function _setUnsaturated () {
+  if (this._saturated) {
+    this._saturated = false
+    this.emit('unsaturated')
+  }
+  return this
+}
+
+function _consumerSaturated (consumer) {
+  this._setSaturated()
 }
 
 function _consumerUnsaturated (consumer) {
   if (!this.consumers().some(filterSaturated)) {
-    this._saturated = false
-    this.emit('unsaturated')
+    this._setUnsaturated()
   }
 }
 

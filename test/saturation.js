@@ -105,3 +105,29 @@ test('all downstream consumers must be unsaturated', timeout, function (t) {
     }, 100)
   }
 })
+
+test('multiple calls to set(Un)saturated do not throw', function (t) {
+  t.plan(2)
+
+  var event       = eventuate(),
+      saturated   = 0,
+      unsaturated = 0
+
+  event.on('saturated', incSaturated)
+  event.on('unsaturated', incUnsaturated)
+  event._setSaturated()
+  event._setSaturated()
+  event._setUnsaturated()
+  event._setUnsaturated()
+
+  t.equal(saturated, 1)
+  t.equal(unsaturated, 1)
+
+  function incSaturated () {
+    saturated++
+  }
+
+  function incUnsaturated () {
+    unsaturated++
+  }
+})
