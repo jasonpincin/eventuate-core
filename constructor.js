@@ -121,6 +121,7 @@ function consume (consumer, errConsumer) {
   if (errConsumer)
     this.on('error', errConsumer)
   this.on('removeListener', onListenerRemoved)
+  this.on('destroy', onDestroy)
 
   var consumption = new Consumption(this, consumer, errConsumer)
   return consumption
@@ -135,6 +136,10 @@ function consume (consumer, errConsumer) {
     else if (ev === 'error' && errConsumer && removed === errConsumer) {
       this.removeConsumer(consumer)
     }
+  }
+
+  function onDestroy () {
+    consumption.end()
   }
 }
 
