@@ -1,4 +1,4 @@
-var EventEmitter             = require('events').EventEmitter,
+var EventEmitter             = require('eventemitter3'),
     assign                   = require('object-assign'),
     Consumption              = require('./lib/consumption'),
     EventuateDestroyedError  = require('./errors').EventuateDestroyedError,
@@ -63,6 +63,8 @@ function produce (data) {
 function produceError (err) {
   if (this._destroyed)
     throw new EventuateDestroyedError('unable to produce after destroy', err)
+  if (!this.listeners('error', true))
+    throw (err instanceof err) ? err : new EventuateUnconsumedError(err)
   this.emit('error', err)
 }
 
@@ -120,21 +122,18 @@ function consume (consumer, errConsumer) {
   this.on('data', consumer)
   if (errConsumer)
     this.on('error', errConsumer)
-  this.on('removeListener', onListenerRemoved)
+  this.on('consumerRemoved', onConsumerRemoved)
   this.on('destroy', onDestroy)
 
   var consumption = new Consumption(this, consumer, errConsumer)
   return consumption
 
-  function onListenerRemoved (ev, removed) {
-    if (ev === 'data' && removed === consumer) {
+  function onConsumerRemoved (emoved) {
+    if (emoved === consumer) {
       if (errConsumer)
         this.removeListener('error', errConsumer)
       consumption.emit('end')
-      this.removeListener('listenerRemoved', onListenerRemoved)
-    }
-    else if (ev === 'error' && errConsumer && removed === errConsumer) {
-      this.removeConsumer(consumer)
+      this.removeListener('consumerRemoved', onConsumerRemoved)
     }
   }
 
@@ -146,7 +145,7 @@ function consume (consumer, errConsumer) {
 function hasConsumer (consumer) {
   return consumer
     ? this.listeners('data').indexOf(consumer) > -1
-    : this.listenerCount('data') > 0
+    : this.listeners('data', true) > 0
 }
 
 function consumers () {

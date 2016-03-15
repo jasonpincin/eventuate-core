@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "define-error": "~1.1.0",
+    "eventemitter3": "~1.1.1",
     "object-assign": "~4.0.1"
   },
   "scripts": {

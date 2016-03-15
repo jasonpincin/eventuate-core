@@ -38,14 +38,14 @@ test('errorConsumer removed by consumption end', timeout, function (t) {
   var consumption = event(function (data) {
     t.notOk(data instanceof Error, 'eventuate produced data')
   }, function (err) {
-    t.ok(err instanceof Error, 'eventuate.error produced Error')
+    t.ok(err instanceof Error, 'eventuate produced Error')
   })
 
   event.produce('data')
   event.produceError(new Error('boom'))
   consumption.end()
   t.ok(!event.hasConsumer(), 'consumer gone')
-  t.equal(event.listenerCount('error'), 0, 'errorConsumer gone')
+  t.equal(event.listeners('error', true), false, 'errorConsumer gone')
   t.throws(function () {
     event.produceError(new Error('boom'))
   }, Error, 'throws after errorConsumer removed')

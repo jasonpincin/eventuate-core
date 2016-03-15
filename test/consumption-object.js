@@ -33,3 +33,14 @@ test('consumption obj isSaturated', timeout, function (t) {
   function consumer1 (data) {
   }
 })
+
+test('then cb is called on end event', timeout, function (t) {
+  t.plan(1)
+
+  var event = eventuate()
+  var c = event.consume(function () {})
+  c.then(function () {
+    t.ok(true)
+  })
+  event.destroy()
+})
