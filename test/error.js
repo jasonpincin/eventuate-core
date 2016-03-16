@@ -61,10 +61,14 @@ test('cannot produceError after destroyed', timeout, function (t) {
 })
 
 test('produce string err with no errorConsumer throws', timeout, function (t) {
-  t.plan(1)
+  t.plan(2)
   var event = eventuate()
   t.throws(function () {
     event.produceError('boom')
+  }, Error, 'throws Error')
+
+  t.throws(function () {
+    event.produceError(new Error('boom'))
   }, Error, 'throws Error')
 })
 

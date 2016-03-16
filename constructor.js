@@ -63,8 +63,9 @@ function produce (data) {
 function produceError (err) {
   if (this._destroyed)
     throw new EventuateDestroyedError('unable to produce after destroy', err)
-  if (!this.listeners('error', true))
-    throw (err instanceof err) ? err : new EventuateUnconsumedError(err)
+  if (!this.listeners('error', true)) throw (err instanceof Error)
+    ? err
+    : new EventuateUnconsumedError(err)
   this.emit('error', err)
 }
 
@@ -128,8 +129,8 @@ function consume (consumer, errConsumer) {
   var consumption = new Consumption(this, consumer, errConsumer)
   return consumption
 
-  function onConsumerRemoved (emoved) {
-    if (emoved === consumer) {
+  function onConsumerRemoved (removed) {
+    if (removed === consumer) {
       if (errConsumer)
         this.removeListener('error', errConsumer)
       consumption.emit('end')
@@ -145,7 +146,7 @@ function consume (consumer, errConsumer) {
 function hasConsumer (consumer) {
   return consumer
     ? this.listeners('data').indexOf(consumer) > -1
-    : this.listeners('data', true) > 0
+    : this.listeners('data', true)
 }
 
 function consumers () {
